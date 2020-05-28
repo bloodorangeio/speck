@@ -1,0 +1,9 @@
+<spec>
+# This should not
+
+## Be
+
+### In the test output
+
+k thx
+</spec>

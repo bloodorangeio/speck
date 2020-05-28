@@ -1,0 +1,5 @@
+speck
+vendor/
+.idea/
+coverage.html
+coverage.out
