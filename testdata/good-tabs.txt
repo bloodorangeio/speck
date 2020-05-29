@@ -1,0 +1,4 @@
+Make sure that if the tab attribute is valid, sections are detabulated.
+		<speck tab=2>
+		Good
+		</speck>

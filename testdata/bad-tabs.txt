@@ -1,0 +1,4 @@
+Make sure that if the tab attribute is invalid, error is thrown.
+		<speck tab=xyz>
+		Bad
+		</speck>

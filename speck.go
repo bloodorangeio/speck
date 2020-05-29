@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"html"
 	"io"
 	"io/ioutil"
 	"os"
@@ -37,24 +38,49 @@ func PrintFileSections(files []string, out io.Writer) error {
 		if err != nil {
 			return err
 		}
+		var innerErr error
 		doc.Find(TagName).Each(func(i int, el *goquery.Selection) {
-			section := strings.TrimPrefix(el.Text(), "\n")
-			tabsStr := el.AttrOr(AttrTab, "0")
-			tabs, err := strconv.Atoi(tabsStr)
-			if err == nil && tabs > 0 {
-				section = deTabulateSection(section, tabs)
+			if innerErr != nil {
+				return
 			}
-			fmt.Fprintln(out, section)
+			contents, err := getElementContents(el)
+			if err != nil {
+				innerErr = err
+				return
+			}
+			fmt.Fprintln(out, contents)
 		})
+		if innerErr != nil {
+			return innerErr
+		}
 	}
 	return nil
 }
 
-func deTabulateSection(section string, tabs int) string {
+func getElementContents(el *goquery.Selection) (string, error) {
+	contents, err := el.Html()
+	if err != nil {
+		return "", err
+	}
+	contents = html.UnescapeString(contents)
+	contents = strings.TrimPrefix(contents, "\n")
+	tabsStr := el.AttrOr(AttrTab, "0")
+	tabs, err := strconv.Atoi(tabsStr)
+	if err != nil {
+		return "", err
+	}
+	if tabs > 0 {
+		contents = deTabulate(contents, tabs)
+	}
+	return contents, nil
+}
+
+func deTabulate(contents string, tabs int) string {
 	prefix := strings.Repeat("\t", tabs)
 	var lines []string
-	for _, line := range strings.Split(section, "\n") {
+	for _, line := range strings.Split(contents, "\n") {
 		lines = append(lines, strings.TrimPrefix(line, prefix))
 	}
-	return strings.Join(lines, "\n")
+	contents = strings.Join(lines, "\n")
+	return contents
 }

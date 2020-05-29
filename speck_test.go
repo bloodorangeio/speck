@@ -13,6 +13,10 @@ import (
 const (
 	goTestSuiteExampleRootDir                = "./testdata/go-test-suite-example"
 	goTestSuiteExampleExpectedResultFilename = "expected-result.md"
+
+	htmlInHtmlFilename = "./testdata/html-in-html.txt"
+	goodTabsFilename   = "./testdata/good-tabs.txt"
+	badTabsFilename    = "./testdata/bad-tabs.txt"
 )
 
 func TestPrintFileSections(t *testing.T) {
@@ -47,6 +51,39 @@ func TestPrintFileSections(t *testing.T) {
 		fmt.Println("RESULT:")
 		fmt.Println(result)
 		t.Fatal("Output from go-test-suite-example does not match expected output")
+	}
+
+	// Make sure HTML tags are not escaped during extraction
+	out = new(bytes.Buffer)
+	err = PrintFileSections([]string{htmlInHtmlFilename}, out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result = out.String()
+	if result != "Example: <div>somestuff</div>\n\n" {
+		fmt.Println("RESULT:")
+		fmt.Println(result)
+		t.Fatalf("Output from %s does not match expected output", htmlInHtmlFilename)
+	}
+
+	// Good tab get detabulated
+	out = new(bytes.Buffer)
+	err = PrintFileSections([]string{goodTabsFilename}, out)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result = out.String()
+	if result != "Good\n\n" {
+		fmt.Println("RESULT:")
+		fmt.Println(result)
+		t.Fatalf("Output from %s does not match expected output", badTabsFilename)
+	}
+
+	// Bad tab throws error
+	out = new(bytes.Buffer)
+	err = PrintFileSections([]string{badTabsFilename}, out)
+	if err == nil {
+		t.Fatalf("Expected error parsing tabs in %s", badTabsFilename)
 	}
 }
 

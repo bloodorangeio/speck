@@ -1,0 +1,4 @@
+Make sure that tags are displayed within tags.
+<speck>
+Example: <div>somestuff</div>
+</speck>
