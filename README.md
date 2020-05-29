@@ -76,3 +76,32 @@ speck testdata/go-test-suite-example/00_setup_test.go \
   testdata/go-test-suite-example/02_second_test.go \
   testdata/go-test-suite-example/01_first_test.go
 ```
+
+## Note on inner HTML
+
+Sometimes you might want to document things like look like HTML tags.
+Here's an example using `<name>` to represent a URL part:
+
+```
+This is my API request: `POST /api/stuff/<name>`
+```
+
+This is supported, with the caveat that is must not be on the same 
+line as the string "speck". As in, you can do this:
+
+```
+<speck>
+This is my API request: `POST /api/stuff/<name>`
+</speck>
+```
+
+but you cannot do this:
+
+```
+<speck>This is my API request: `POST /api/stuff/<name>`</speck>
+```
+
+Otherwise you will end up with `<name>` going missing in the output. This is needed due to HTML parsing madness.
+
+The issue is demonstrated in the `TestDisappearingTag` test found in [speck_test.go](./speck_test.go).
+If you can fix this, PRs are accepted by all means.

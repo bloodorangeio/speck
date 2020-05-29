@@ -34,7 +34,8 @@ func PrintFileSections(files []string, out io.Writer) error {
 		if err != nil {
 			return err
 		}
-		doc, err := goquery.NewDocumentFromReader(bytes.NewReader(b))
+		bb := escapeHTMLCharacters(b)
+		doc, err := goquery.NewDocumentFromReader(bytes.NewReader(bb))
 		if err != nil {
 			return err
 		}
@@ -57,12 +58,20 @@ func PrintFileSections(files []string, out io.Writer) error {
 	return nil
 }
 
-func getElementContents(el *goquery.Selection) (string, error) {
-	contents, err := el.Html()
-	if err != nil {
-		return "", err
+func escapeHTMLCharacters(b []byte) []byte {
+	s := string(b)
+	var tmp []string
+	for _, line := range strings.Split(s, "\n") {
+		if !strings.Contains(line, TagName) {
+			line = html.EscapeString(line)
+		}
+		tmp = append(tmp, line)
 	}
-	contents = html.UnescapeString(contents)
+	return []byte(strings.Join(tmp, "\n"))
+}
+
+func getElementContents(el *goquery.Selection) (string, error) {
+	contents := el.Text()
 	contents = strings.TrimPrefix(contents, "\n")
 	tabsStr := el.AttrOr(AttrTab, "0")
 	tabs, err := strconv.Atoi(tabsStr)

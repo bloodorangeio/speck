@@ -1,0 +1,11 @@
+Make sure that if using things that look like tags,
+that they are treated as plain text
+
+<speck>
+Here is an example HTTP request:
+```
+GET /v2/<name>/blobs/<digest>
+Host: <registry host>
+Authorization: <scheme> <token>
+```
+</speck>
